@@ -1,76 +1,95 @@
-import java.awt.EventQueue;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
-import javax.swing.JFrame;
-import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+public class Conexion {
 
-public class Ventana {
+    public static Connection obtenerConexion() {
+        Connection conexion = null;
 
-	private JFrame frame;
+        try {
+            // Cargar el controlador JDBC
+            Class.forName("com.mysql.cj.jdbc.Driver");
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					Ventana window = new Ventana();
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+            // Establecer la conexión a la base de datos
+            String url = "jdbc:mysql://localhost:3306/clasemiercoles302";
+            String usuario = "root";
+            String contraseña = "";
+            conexion = DriverManager.getConnection(url, usuario, contraseña);
 
-	/**
-	 * Create the application.
-	 */
-	public Ventana() {
-		initialize();
-	}
+            if (conexion != null) {
+                System.out.println("¡Conexión exitosa!");
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
 
-	/**
-	 * Initialize the contents of the frame.
-	 */
-	private void initialize() {
-		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 300);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(null);
-		
-		JButton btnNewButton = new JButton("Salir");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				
-				System.exit(0);
-				
-			}
-		});
-		btnNewButton.setBounds(316, 201, 89, 23);
-		frame.getContentPane().add(btnNewButton);
-		
-		JButton btnConectar = new JButton("Conectar");
-		btnConectar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				Conexion cn = new Conexion();
-				cn.obtenerConexion();
-			}
-		});
-		btnConectar.setBounds(10, 37, 89, 23);
-		frame.getContentPane().add(btnConectar);
-		
-		JButton btnConectareInsertarProfesor = new JButton("Conectare insertar Profesor");
-		btnConectareInsertarProfesor.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				Conexion cn = new Conexion();
-				cn.insertarProfesor("1", null, null);
-				
-			}
-		});
-		btnConectareInsertarProfesor.setBounds(10, 76, 167, 23);
-		frame.getContentPane().add(btnConectareInsertarProfesor);
-	}
+        return conexion;
+    }
+
+    public static void cerrarConexion(Connection conexion) {
+        try {
+            if (conexion != null) {
+                conexion.close();
+                System.out.println("Conexión cerrada");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        Connection conexion = obtenerConexion();
+
+        // Realiza las operaciones de base de datos aquí, si es necesario
+
+        cerrarConexion(conexion);
+    }
+    
+    
+    
+    
+    public static void insertarProfesor(String nombre, String apellido, String materia) {
+        Connection conexion = null;
+        PreparedStatement statement = null;
+
+        try {
+            // Obtener la conexión
+            conexion = obtenerConexion();
+
+            // Definir la consulta SQL para la inserción
+            String consulta = "INSERT INTO profesor (ID, Nombre, Materia) VALUES (?, ?, ?)";
+            
+            // Preparar la declaración
+            statement = conexion.prepareStatement(consulta);
+
+            // Establecer los valores de los parámetros
+            statement.setString(1, nombre);
+            statement.setString(2, apellido);
+            statement.setString(3, materia);
+
+            // Ejecutar la inserción
+            int filasAfectadas = statement.executeUpdate();
+
+            if (filasAfectadas > 0) {
+                System.out.println("Registro insertado correctamente");
+            } else {
+                System.out.println("No se pudo insertar el registro");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // Cerrar la conexión y la declaración al finalizar
+            cerrarConexion(conexion);
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }
