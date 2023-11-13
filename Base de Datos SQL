@@ -1,0 +1,43 @@
+-- Crear la base de datos
+CREATE DATABASE IF NOT EXISTS clasemiercoles302;
+
+-- Usar la base de datos
+USE clasemiercoles302;
+
+-- Crear la tabla Estudiante
+CREATE TABLE IF NOT EXISTS Estudiante (
+    ID INT PRIMARY KEY,
+    Nombre VARCHAR(255),
+    Edad INT
+);
+
+-- Crear la tabla Profesor
+CREATE TABLE IF NOT EXISTS Profesor (
+    ID INT PRIMARY KEY,
+    Nombre VARCHAR(255),
+    Materia VARCHAR(255)
+);
+
+-- Crear la tabla Salones
+CREATE TABLE IF NOT EXISTS Salones (
+    ID INT PRIMARY KEY,
+    Nombre VARCHAR(255),
+    Capacidad INT
+);
+
+-- Crear la tabla Calificaciones
+CREATE TABLE IF NOT EXISTS Calificaciones (
+    ID INT PRIMARY KEY,
+    Estudiante_ID INT,
+    Materia VARCHAR(255),
+    Calificacion INT,
+    FOREIGN KEY (Estudiante_ID) REFERENCES Estudiante(ID)
+);
+
+-- Crear la tabla PromedioCalificaciones
+CREATE TABLE IF NOT EXISTS PromedioCalificaciones (
+    ID INT PRIMARY KEY,
+    Estudiante_ID INT,
+    Promedio DECIMAL(5, 2),
+    FOREIGN KEY (Estudiante_ID) REFERENCES Estudiante(ID)
+);
